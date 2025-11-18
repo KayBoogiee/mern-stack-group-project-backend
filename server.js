@@ -1,26 +1,29 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');          // ← make sure cors is here
 
 const app = express();
 
 // Middleware
+app.use(cors());           // ← VERY IMPORTANT for frontend to connect
 app.use(express.json());
 
-// Root route — works perfectly for browser, Postman, and Heroku health checks
-app.head('/', (req, res) => res.sendStatus(200));
-app.get('/', (req, res) => {
-  res.json({
-    message: 'API is running successfully! 🚀',
-    status: 'success',
-    timestamp: new Date().toISOString(),
+// ROOT ROUTE — THIS MUST BE THE ONLY ONE
+app.route('/')
+  .head((req, res) => res.sendStatus(200))
+  .get((req, res) => {
+    res.json({
+      message: 'Backend is LIVE and working perfectly! 🚀',
+      status: 'success',
+      timestamp: new Date().toISOString(),
+      info: 'Your API routes should be under /api/...',
+    });
   });
-});
 
 // MongoDB Connection
 const connectDB = async () => {
   try {
-    console.log("Attempting to connect to MongoDB...");
     await mongoose.connect(process.env.MONGO_URI);
     console.log('MongoDB Connected Successfully');
   } catch (err) {
@@ -29,7 +32,6 @@ const connectDB = async () => {
   }
 };
 
-// Start server ONLY after DB is connected
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
@@ -39,5 +41,4 @@ const startServer = async () => {
   });
 };
 
-// Start everything
 startServer();
